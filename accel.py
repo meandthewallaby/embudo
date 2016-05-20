@@ -5,12 +5,14 @@ ACCEL_ADDR = 0x68
 class Accelerometer:
     def __init__(self, bus = 1):
         self.i2c = smbus.SMBus(1)
-        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x19, [0x07])
-        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x1b, [0x08])
-        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x6b, [0x02])
-        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x38, [0x01])
-        self.pitch = 0
-        self.roll = 0
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x19, [0x01]) # Set gyroscope sample rate (turn to 0x08 if low pass is enabled)
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x1a, [0x01]) # Set gyroscope low pass filter
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x1b, [0x10]) # Set gyroscope to +/- 1000 deg/s
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x1c, [0x18]) # Set accelerometer to +/- 16g
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x6b, [0x02]) # Set clock source to use PLL w/ y-axis gyroscope
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x38, [0x01]) # Enable data ready interrupt
+        self.pitch = None
+        self.roll = None
 
     def _unpack(self, val1, val2):
         a = struct.unpack('>h', chr(val1)+chr(val2))[0]
@@ -22,7 +24,7 @@ class Accelerometer:
     def _calc_gyro_val(self, val1, val2):
         return self._unpack(val1, val2) / 65.5
 
-    def _read_vals(self):
+    def read_vals(self):
         self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x00, [])
         raw_vals = self.i2c.read_i2c_block_data(ACCEL_ADDR, 0x3B)
         ret = {"accel": {"x": None, "y": None, "z": None}, "gyro": {"x": None, "y": None, "z": None}}
@@ -38,11 +40,6 @@ class Accelerometer:
         return math.sqrt((a*a)+(b*b))
 
     def calc_pitch_and_roll(self):
-        a = self._read_vals()
-        p = math.degrees(math.atan2(a["accel"]["y"], self._distance(a["accel"]["x"], a["accel"]["z"])))
-        r = math.degrees(math.atan2(a["accel"]["x"], self._distance(a["accel"]["y"], a["accel"]["z"])))
-
-        sample_period = 1.
-
-        self.pitch = 0.98*(sample_period*a["gyro"]["x"]+self.pitch)+(0.02*p)
-        self.roll = 0.98*(sample_period*a["gyro"]["y"]+self.roll)+(0.02*r)
+        a = self.read_vals()
+        self.pitch = math.degrees(math.atan2(a["accel"]["x"], self._distance(a["accel"]["y"], a["accel"]["z"])))
+        self.roll = math.degrees(math.atan2(-a["accel"]["x"], a["accel"]["z"]))
