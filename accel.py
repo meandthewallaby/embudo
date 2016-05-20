@@ -1,4 +1,4 @@
-import smbus, math
+import smbus, math, struct
 
 ACCEL_ADDR = 0x68
 
