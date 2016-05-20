@@ -5,10 +5,10 @@ ACCEL_ADDR = 0x68
 class Accelerometer:
     def __init__(self, bus = 1):
         self.i2c = smbus.SMBus(1)
-        self.i2c.write_i2c_block_data(addr, 0x19, [0x07])
-        self.i2c.write_i2c_block_data(addr, 0x1b, [0x07])
-        self.i2c.write_i2c_block_data(addr, 0x6b, [0x07])
-        self.i2c.write_i2c_block_data(addr, 0x38, [0x07])
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x19, [0x07])
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x1b, [0x07])
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x6b, [0x07])
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x38, [0x07])
         self.pitch = 0
         self.roll = 0
 
@@ -23,8 +23,8 @@ class Accelerometer:
         return _pack(val1, val2) / 65.5
 
     def _read_vals():
-        self.i2c.write_i2c_block_data(addr, 0x00, [])
-        raw_vals = self.i2c.read_i2c_block_data(addr, 0x3B)
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x00, [])
+        raw_vals = self.i2c.read_i2c_block_data(ACCEL_ADDR, 0x3B)
         ret = {"accel": {"x": None, "y": None, "z": None}, "gyro": {"x": None, "y": None, "z": None}}
         ret["accel"]["x"] = _calc_accel_val(raw_vals[0], raw_vals[1])
         ret["accel"]["y"] = _calc_accel_val(raw_vals[2], raw_vals[3])
