@@ -6,21 +6,21 @@ class Accelerometer:
     def __init__(self, bus = 1):
         self.i2c = smbus.SMBus(1)
         self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x19, [0x07])
-        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x1b, [0x07])
-        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x6b, [0x07])
-        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x38, [0x07])
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x1b, [0x08])
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x6b, [0x02])
+        self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x38, [0x01])
         self.pitch = 0
         self.roll = 0
 
-    def _pack(self, val1, val2):
+    def _unpack(self, val1, val2):
         a = struct.unpack('>h', chr(val1)+chr(val2))[0]
         return a
 
     def _calc_accel_val(self, val1, val2):
-        return self._pack(val1, val2) / 16384.
+        return self._unpack(val1, val2) / 16384.
 
     def _calc_gyro_val(self, val1, val2):
-        return self._pack(val1, val2) / 65.5
+        return self._unpack(val1, val2) / 65.5
 
     def _read_vals(self):
         self.i2c.write_i2c_block_data(ACCEL_ADDR, 0x00, [])
@@ -40,7 +40,7 @@ class Accelerometer:
     def calc_pitch_and_roll(self):
         a = self._read_vals()
         p = math.degrees(math.atan2(a["accel"]["y"], self._distance(a["accel"]["x"], a["accel"]["z"])))
-        r = math.degrees(math.atan2(a["acce"]["x"], self._distance(a["accel"]["y"], a["accel"]["z"])))
+        r = math.degrees(math.atan2(a["accel"]["x"], self._distance(a["accel"]["y"], a["accel"]["z"])))
 
         sample_period = 1.
 
