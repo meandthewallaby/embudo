@@ -9,16 +9,16 @@ if __name__ == "__main__":
     cam2 = cv2.VideoCapture(2)
 
     cam0.set(3, 1280)
-    cam0.set(4, 960)
+    cam0.set(4, 720)
     cam1.set(3, 1280)
-    cam1.set(4, 960)
+    cam1.set(4, 720)
     cam2.set(3, 1280)
-    cam2.set(4, 960)
+    cam2.set(4, 720)
     
-    fourcc = cv2.cv.CV_FOURCC(*'MP4V')
-    out0 = cv2.VideoWriter('/tmp/out0.mp4', fourcc, 15.0, (1280, 960))
-    out1 = cv2.VideoWriter('/tmp/out1.mp4', fourcc, 15.0, (1280, 960))
-    out2 = cv2.VideoWriter('/tmp/out2.mp4', fourcc, 15.0, (1280, 960))
+    fourcc = cv2.cv.CV_FOURCC(*'MJPG')
+    out0 = cv2.VideoWriter('/tmp/out0.avi', fourcc, 29.97, (1280, 720))
+    out1 = cv2.VideoWriter('/tmp/out1.avi', fourcc, 29.97, (1280, 720))
+    out2 = cv2.VideoWriter('/tmp/out2.avi', fourcc, 29.97, (1280, 720))
 
     frames = 0
 
@@ -41,3 +41,4 @@ if __name__ == "__main__":
     out1.release()
     out2.release()
     cv2.destroyAllWindows()
+

@@ -6,12 +6,13 @@ CAM_WIDTH = 1280
 CAM_HEIGHT = 960
 
 class Camera:
-    def __init__(self, device="/dev/video0"):
+    def __init__(self, device="/dev/video0", width=CAM_WIDTH, height=CAM_HEIGHT):
         self.device = device
         self.cam = v4l2capture.Video_device(device)
-        self.cam.set_format(CAM_WIDTH, CAM_HEIGHT)
+        self.width = width
+        self.height = height
+        self.cam.set_format(width, height)
         self.cam.set_brightness(0)
-        self.cam.set_exposure_auto(0) #Auto Mode
         self.cam.create_buffers(1)
 
     def start(self):
@@ -31,7 +32,7 @@ class Camera:
                     raw_image = None
                     continue
             if raw_image is not None:
-                img = cv.CreateImageHeader((CAM_WIDTH, CAM_HEIGHT), cv.IPL_DEPTH_8U, 3)
+                img = cv.CreateImageHeader((self.width, self.height), cv.IPL_DEPTH_8U, 3)
                 cv.SetData(img, raw_image)
                 cv.CvtColor(img, img, cv.CV_RGB2BGR)
                 return img                    
@@ -54,7 +55,7 @@ class Camera:
                     raw_image = None
                     continue
             if raw_image is not None:
-                img = cv.CreateImageHeader((CAM_WIDTH, CAM_HEIGHT), cv.IPL_DEPTH_8U, 3)
+                img = cv.CreateImageHeader((self.width, self.height), cv.IPL_DEPTH_8U, 3)
                 cv.SetData(img, raw_image)
                 cv.CvtColor(img, img, cv.CV_RGB2BGR)
                 cv.SaveImage(filename, img)
